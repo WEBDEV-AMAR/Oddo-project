@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/images/logo.jpg';
 
 const BrowseItemsPage = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [items, setItems] = useState([]);
   const [filters, setFilters] = useState({ category: '', size: '', type: '' });
   const [sortOption, setSortOption] = useState('');
@@ -8,6 +12,15 @@ const BrowseItemsPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
+    // Check logged in user from localStorage
+    const loggedUser = JSON.parse(localStorage.getItem('user'));
+    if (loggedUser) {
+      setUser(loggedUser);
+    } else {
+      setUser(null);
+    }
+
+    // Dummy data
     const dummyItems = [
       {
         _id: '1',
@@ -62,7 +75,6 @@ const BrowseItemsPage = () => {
         tags: ['dress', 'floral', 'summer'],
       },
     ];
-
     setItems(dummyItems);
   }, []);
 
@@ -105,23 +117,43 @@ const BrowseItemsPage = () => {
     <div className="bg-cream min-h-screen text-green-900 px-6 py-6">
       {/* Navbar */}
       <nav className="bg-white shadow sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-green-900">ReWear</h1>
+        <img
+          src={logo}
+          alt="ReWear Logo"
+          className="h-30 w-20 rounded-full cursor-pointer"
+          onClick={() => navigate("/")}></img>
+
         <div className="hidden md:flex gap-6">
-          <span className="text-green-800 hover:underline cursor-pointer">Home</span>
-          <span className="text-green-800 hover:underline cursor-pointer">List an Item</span>
+          <span className="text-green-800 text-lg hover:underline cursor-pointer" onClick={() => navigate('/')}>Home</span>
+          <span className="text-green-800 text-lg hover:underline cursor-pointer" onClick={() => navigate('/list-item')}>List an Item</span>
         </div>
-        <button
-          className="bg-green-900 text-white px-4 py-2 rounded-full text-sm hover:bg-green-800"
-        >
-          Login/Signup
-        </button>
+
+        {user ? (
+          // Show profile icon if logged in
+          <div className="relative">
+            <button
+              onClick={() => navigate('/profile')}
+              title="Go to Profile"
+              className="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-lg hover:bg-green-800"
+            >
+              {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-green-900 text-white px-4 py-2 rounded-full text-sm hover:bg-green-800"
+          >
+            Login/Signup
+          </button>
+        )}
       </nav>
 
       {/* Main Heading */}
-      <h1 className="text-3xl font-bold mt-6 mb-4 text-green-900">Browse Items</h1>
+      <h1 className="text-3xl font-bold mt-6 mb-2 text-green-900">Browse Items</h1>
 
       {/* Search + Filters */}
-      <div className="flex flex-wrap gap-4 items-center mb-4">
+      <div className="flex flex-wrap gap-4 items-center mb-2">
         <input
           type="text"
           placeholder="Search items..."
@@ -154,10 +186,10 @@ const BrowseItemsPage = () => {
         </select>
       </div>
 
-      {/* Conditionally show "Browsed Items" heading */}
+      {/* Browsed Items heading always visible */}
       {isFilterActive() && (
-        <h2 className="text-xl font-semibold mb-4 text-green-900">Browsed Items</h2>
-      )}
+  <h2 className="text-xl font-semibold mb-4 text-green-900">Browsed Items</h2>
+)}
 
       {/* Items Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

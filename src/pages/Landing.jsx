@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import logo from '../assets/images/logo.jpg';  // path tumhari file location ke hisaab se adjust kar lena
+
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -34,31 +36,32 @@ const Landing = () => {
     <div className="bg-cream min-h-screen text-green-900 font-sans">
       {/* Navbar */}
       <nav className="flex justify-between items-center px-8 py-4 shadow bg-white">
-        <h1
-          className="text-3xl font-extrabold text-green-800 cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          ReWear
-        </h1>
+        <img
+  src={logo}
+  alt="ReWear Logo"
+  className="h-30 w-20 rounded-full cursor-pointer"
+  onClick={() => navigate("/")}
+/>
+
         <div className="space-x-6 hidden md:flex">
-          <Link to="/browse-items" className="hover:underline">
+          <Link to="/browse-items" className="hover:underline text-xl ">
             Browse Items
           </Link>
-          <button onClick={handleListItem} className="hover:underline">
+          <button onClick={handleListItem} className="hover:underline text-xl">
             List an Item
           </button>
         </div>
         {user ? (
           <div className="flex items-center space-x-4">
             <span
-              className="text-sm cursor-pointer"
+              className="text-lg font-medium cursor-pointer"
               onClick={handleProfileClick}
             >
               Hi, {user.fullName}
             </span>
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded-full text-xs"
+              className="bg-red-500 text-white px-3 py-1 rounded-full text-xl"
             >
               Logout
             </button>
@@ -88,12 +91,12 @@ const Landing = () => {
             Join the community to refresh your wardrobe sustainably.
           </p>
           <div className="flex justify-center md:justify-start space-x-4">
-            <button
-              onClick={handleListItem}
+            <Link
+              to="/browse-items"
               className="bg-green-800 text-white px-6 py-2 rounded-full hover:bg-green-900"
             >
               Start Swapping
-            </button>
+            </Link>
             <Link
               to="/browse-items"
               className="bg-white border border-green-800 text-green-800 px-6 py-2 rounded-full hover:bg-green-100"

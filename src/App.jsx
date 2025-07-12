@@ -5,7 +5,6 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/profile"
-import Landing from "./pages/Landing";
 import BrowseItemsPage from './pages/BrowseItemsPage';
 
 
