@@ -26,12 +26,17 @@ const Signup = () => {
       fullName,
       email,
       password, // ⚠️ Plaintext for learning; hash in production
+      points: 100, // Adding 100 points on signup
     };
 
     try {
-      await db.put(user);
-      localStorage.setItem("user", JSON.stringify(user)); // ✅ Save to localStorage
-      navigate("/"); // Navigate to Landing page
+      await db.put(user); // Save the user to the database
+      localStorage.setItem("user", JSON.stringify(user)); // Save the user in localStorage
+
+      // Alert the user that 100 points have been credited
+      
+
+      navigate("/"); // Navigate to the landing page or user dashboard
     } catch (err) {
       console.error(err);
       if (err.status === 409) setError("User already exists.");

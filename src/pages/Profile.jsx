@@ -19,9 +19,13 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [sentRequests, setSentRequests] = useState([]);
   const [receivedRequests, setReceivedRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Load user data from localStorage
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("user"));
+    console.log("Logged User:", loggedUser); // Debugging step
+    
     if (loggedUser) {
       setUser(loggedUser);
       setFormData({
@@ -37,6 +41,8 @@ const Profile = () => {
     } else {
       navigate("/login");
     }
+
+    setLoading(false); // Data loading complete
   }, [navigate]);
 
   const fetchSwapRequests = async (email) => {
@@ -48,10 +54,46 @@ const Profile = () => {
       const received = all.rows
         .map((row) => row.doc)
         .filter((req) => req.to === email);
+
       setSentRequests(sent);
       setReceivedRequests(received);
     } catch (error) {
       console.error("Error fetching swap requests:", error);
+    }
+  };
+
+  const handleAcceptRequest = async (req) => {
+    try {
+      const latestDoc = await swapDB.get(req._id);
+      const updatedReq = { ...latestDoc, status: "accepted" };
+      await swapDB.put(updatedReq);
+      await fetchSwapRequests(user.email);
+      alert("Swap request accepted!");
+    } catch (error) {
+      console.error("Error accepting request:", error);
+    }
+  };
+
+  const handleRejectRequest = async (req) => {
+    try {
+      const latestDoc = await swapDB.get(req._id);
+      const updatedReq = { ...latestDoc, status: "rejected" };
+      await swapDB.put(updatedReq);
+      await fetchSwapRequests(user.email);
+      alert("Swap request rejected!");
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+    }
+  };
+
+  const handleCancelRequest = async (req) => {
+    try {
+      const latestDoc = await swapDB.get(req._id);
+      await swapDB.remove(latestDoc);
+      await fetchSwapRequests(user.email);
+      alert("Swap request cancelled!");
+    } catch (error) {
+      console.error("Error cancelling request:", error);
     }
   };
 
@@ -80,6 +122,8 @@ const Profile = () => {
       };
       await db.put(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Update user state immediately to reflect changes
       setUser(updatedUser);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -90,6 +134,8 @@ const Profile = () => {
     await saveToDb(formData);
     setEditing(false);
   };
+
+  if (loading) return <div>Loading...</div>; // Fallback loading UI
 
   if (!user) return null;
 
@@ -125,7 +171,7 @@ const Profile = () => {
           />
         </div>
 
-        {/* Details */}
+        {/* Profile Form */}
         <div className="space-y-4">
           {/* Full Name */}
           <div>
@@ -250,8 +296,16 @@ const Profile = () => {
             ) : (
               <ul className="list-disc pl-5">
                 {sentRequests.map((req) => (
-                  <li key={req._id}>
+                  <li key={req._id} className="mb-1">
                     To: {req.to} | Item ID: {req.itemId} | Status: {req.status}
+                    {req.status === "pending" && (
+                      <button
+                        onClick={() => handleCancelRequest(req)}
+                        className="ml-3 text-red-600 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -265,8 +319,24 @@ const Profile = () => {
             ) : (
               <ul className="list-disc pl-5">
                 {receivedRequests.map((req) => (
-                  <li key={req._id}>
+                  <li key={req._id} className="mb-1">
                     From: {req.from} | Item ID: {req.itemId} | Status: {req.status}
+                    {req.status === "pending" && (
+                      <>
+                        <button
+                          onClick={() => handleAcceptRequest(req)}
+                          className="ml-3 text-green-600 hover:underline"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleRejectRequest(req)}
+                          className="ml-2 text-red-600 hover:underline"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>

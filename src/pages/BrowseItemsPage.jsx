@@ -4,23 +4,31 @@ import logo from '../assets/images/logo.jpg';
 
 const BrowseItemsPage = () => {
   const navigate = useNavigate();
+
+  // User state for logged-in user info
   const [user, setUser] = useState(null);
+
+  // Items to display
   const [items, setItems] = useState([]);
+
+  // Filters for category, size, type
   const [filters, setFilters] = useState({ category: '', size: '', type: '' });
+
+  // Sorting option
   const [sortOption, setSortOption] = useState('');
+
+  // Search input text
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Selected item for modal details
   const [selectedItem, setSelectedItem] = useState(null);
 
+  // On component mount, get user from localStorage and set dummy items
   useEffect(() => {
-    // Check logged in user from localStorage
     const loggedUser = JSON.parse(localStorage.getItem('user'));
-    if (loggedUser) {
-      setUser(loggedUser);
-    } else {
-      setUser(null);
-    }
+    setUser(loggedUser || null);
 
-    // Dummy data
+    // Dummy items data
     const dummyItems = [
       {
         _id: '1',
@@ -75,18 +83,22 @@ const BrowseItemsPage = () => {
         tags: ['dress', 'floral', 'summer'],
       },
     ];
+
     setItems(dummyItems);
   }, []);
 
+  // Update filters state on change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
+  // Update sort option state
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
   };
 
+  // Check if any filter or search is active to show the heading
   const isFilterActive = () => {
     return (
       searchQuery.trim() !== '' ||
@@ -96,22 +108,56 @@ const BrowseItemsPage = () => {
     );
   };
 
+  // Apply filtering, searching and sorting on items
   const filteredItems = items
-    .filter(item =>
-      (!filters.category || item.category === filters.category) &&
-      (!filters.size || item.size === filters.size) &&
-      (!filters.type || item.type === filters.type)
+    // Filter by category, size, type
+    .filter(
+      (item) =>
+        (!filters.category || item.category === filters.category) &&
+        (!filters.size || item.size === filters.size) &&
+        (!filters.type || item.type === filters.type)
     )
-    .filter(item =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
+    // Search by title or tags
+    .filter((item) => {
+      const lowerSearch = searchQuery.toLowerCase();
+      return (
+        item.title.toLowerCase().includes(lowerSearch) ||
+        item.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))
+      );
+    })
+    // Sort items based on sortOption
     .sort((a, b) => {
       if (sortOption === 'recent') return new Date(b.createdAt) - new Date(a.createdAt);
       if (sortOption === 'lowToHigh') return a.points - b.points;
       if (sortOption === 'highToLow') return b.points - a.points;
       return 0;
     });
+
+  // Handle redeem or swap button click
+  const handleActionClick = (action, item) => {
+    if (!user) {
+      alert('Please log in to proceed.');
+      navigate('/login');
+      return;
+    }
+
+    if (action === 'redeem') {
+      if (user.points < item.points) {
+        alert("You don't have enough points to redeem this item.");
+      } else {
+        alert('Redeemed successfully!');
+        // Deduct points
+        const updatedUser = { ...user, points: user.points - item.points };
+        localStorage.setItem('user', JSON.stringify(updatedUser)); // Save updated user to localStorage
+        setUser(updatedUser); // Update user state
+      }
+    }
+
+    if (action === 'swap') {
+      alert('Swap request sent!');
+      navigate('/profile');
+    }
+  };
 
   return (
     <div className="bg-cream min-h-screen text-green-900 px-6 py-6">
@@ -121,15 +167,24 @@ const BrowseItemsPage = () => {
           src={logo}
           alt="ReWear Logo"
           className="h-30 w-20 rounded-full cursor-pointer"
-          onClick={() => navigate("/")}></img>
-
+          onClick={() => navigate('/')}
+        />
         <div className="hidden md:flex gap-6">
-          <span className="text-green-800 text-lg hover:underline cursor-pointer" onClick={() => navigate('/')}>Home</span>
-          <span className="text-green-800 text-lg hover:underline cursor-pointer" onClick={() => navigate('/list-item')}>List an Item</span>
+          <span
+            className="text-green-800 text-lg hover:underline cursor-pointer"
+            onClick={() => navigate('/')}
+          >
+            Home
+          </span>
+          <span
+            className="text-green-800 text-lg hover:underline cursor-pointer"
+            onClick={() => navigate('/list-item')}
+          >
+            List an Item
+          </span>
         </div>
 
         {user ? (
-          // Show profile icon if logged in
           <div className="relative">
             <button
               onClick={() => navigate('/profile')}
@@ -152,7 +207,7 @@ const BrowseItemsPage = () => {
       {/* Main Heading */}
       <h1 className="text-3xl font-bold mt-6 mb-2 text-green-900">Browse Items</h1>
 
-      {/* Search + Filters */}
+      {/* Search and Filters */}
       <div className="flex flex-wrap gap-4 items-center mb-2">
         <input
           type="text"
@@ -161,24 +216,47 @@ const BrowseItemsPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border border-gray-300 px-4 py-2 rounded-md w-full md:w-64"
         />
-        <select name="category" onChange={handleFilterChange} className="border px-3 py-2 rounded-md w-full md:w-auto" value={filters.category}>
+
+        <select
+          name="category"
+          value={filters.category}
+          onChange={handleFilterChange}
+          className="border px-3 py-2 rounded-md w-full md:w-auto"
+        >
           <option value="">All Categories</option>
           <option value="Tops">Tops</option>
           <option value="Jeans">Jeans</option>
           <option value="Jackets">Jackets</option>
         </select>
-        <select name="size" onChange={handleFilterChange} className="border px-3 py-2 rounded-md w-full md:w-auto" value={filters.size}>
+
+        <select
+          name="size"
+          value={filters.size}
+          onChange={handleFilterChange}
+          className="border px-3 py-2 rounded-md w-full md:w-auto"
+        >
           <option value="">All Sizes</option>
           <option value="S">Small</option>
           <option value="M">Medium</option>
           <option value="L">Large</option>
         </select>
-        <select name="type" onChange={handleFilterChange} className="border px-3 py-2 rounded-md w-full md:w-auto" value={filters.type}>
+
+        <select
+          name="type"
+          value={filters.type}
+          onChange={handleFilterChange}
+          className="border px-3 py-2 rounded-md w-full md:w-auto"
+        >
           <option value="">All Types</option>
           <option value="swap">Swap</option>
           <option value="redeem">Redeem</option>
         </select>
-        <select onChange={handleSortChange} className="border px-3 py-2 rounded-md w-full md:w-auto" value={sortOption}>
+
+        <select
+          value={sortOption}
+          onChange={handleSortChange}
+          className="border px-3 py-2 rounded-md w-full md:w-auto"
+        >
           <option value="">Sort by</option>
           <option value="recent">Recently Added</option>
           <option value="lowToHigh">Points: Low to High</option>
@@ -186,15 +264,15 @@ const BrowseItemsPage = () => {
         </select>
       </div>
 
-      {/* Browsed Items heading always visible */}
+      {/* Browsed Items heading if any filter or search active */}
       {isFilterActive() && (
-  <h2 className="text-xl font-semibold mb-4 text-green-900">Browsed Items</h2>
-)}
+        <h2 className="text-xl font-semibold mb-4 text-green-900">Browsed Items</h2>
+      )}
 
       {/* Items Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredItems.length > 0 ? (
-          filteredItems.map(item => (
+          filteredItems.map((item) => (
             <div
               key={item._id}
               className="bg-white rounded-lg shadow hover:shadow-md transition duration-200 p-4 text-center flex flex-col"
@@ -237,18 +315,24 @@ const BrowseItemsPage = () => {
             />
             <h2 className="text-2xl font-bold mb-2">{selectedItem.title}</h2>
             <p className="text-gray-700 mb-3">{selectedItem.description}</p>
-            <p className="text-sm mb-1"><strong>Size:</strong> {selectedItem.size}</p>
-            <p className="text-sm mb-1"><strong>Condition:</strong> {selectedItem.condition}</p>
-            <p className="text-sm mb-4"><strong>Points:</strong> {selectedItem.points}</p>
+            <p className="text-sm mb-1">
+              <strong>Size:</strong> {selectedItem.size}
+            </p>
+            <p className="text-sm mb-1">
+              <strong>Condition:</strong> {selectedItem.condition}
+            </p>
+            <p className="text-sm mb-4">
+              <strong>Points:</strong> {selectedItem.points}
+            </p>
             <div className="flex gap-3 flex-wrap justify-end">
               <button
-                onClick={() => alert('Swap Requested!')}
+                onClick={() => handleActionClick('swap', selectedItem)}
                 className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-700"
               >
                 Request Swap
               </button>
               <button
-                onClick={() => alert('Redeemed!')}
+                onClick={() => handleActionClick('redeem', selectedItem)}
                 className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
               >
                 Redeem via Points
