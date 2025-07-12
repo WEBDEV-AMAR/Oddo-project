@@ -10,11 +10,12 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!agree) {
-      alert("Please agree to terms and conditions");
+      setError("Please agree to terms and conditions.");
       return;
     }
 
@@ -26,12 +27,11 @@ const Signup = () => {
         password // ⚠️ Plaintext for learning; hash in production
       };
       await db.put(user);
-      alert("Signup successful!");
-      navigate("/");
+      navigate("/"); // ✅ navigate to Landing page after signup
     } catch (error) {
       console.error(error);
-      if (error.status === 409) alert("User already exists.");
-      else alert("Error registering user.");
+      if (error.status === 409) setError("User already exists.");
+      else setError("Error registering user.");
     }
   };
 
@@ -46,9 +46,10 @@ const Signup = () => {
         <label className="text-sm flex items-center mb-4">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mr-2" /> I have read and agree to the terms and conditions
         </label>
+        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
         <button type="submit" className="w-full bg-blue-800 text-white py-2 rounded-full mb-4">Sign Up</button>
       </form>
-      <p className="text-sm text-center">Already have an account? <Link to="/" className="text-blue-500 hover:underline">Login</Link></p>
+      <p className="text-sm text-center">Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login</Link></p>
     </AuthLayout>
   );
 };
