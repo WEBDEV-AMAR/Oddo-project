@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import db from "../db";
+import db from "../db/db";
+import PouchDB from "pouchdb-browser";
+
+const swapDB = new PouchDB("swap_requests");
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -8,12 +11,14 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    
+    password: "",
     bio: "",
     address: "",
     phone: "",
   });
   const [profileImage, setProfileImage] = useState(null);
+  const [sentRequests, setSentRequests] = useState([]);
+  const [receivedRequests, setReceivedRequests] = useState([]);
 
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("user"));
@@ -27,10 +32,28 @@ const Profile = () => {
         phone: loggedUser.phone || "",
       });
       if (loggedUser.profileImage) setProfileImage(loggedUser.profileImage);
+
+      fetchSwapRequests(loggedUser.email);
     } else {
       navigate("/login");
     }
   }, [navigate]);
+
+  const fetchSwapRequests = async (email) => {
+    try {
+      const all = await swapDB.allDocs({ include_docs: true });
+      const sent = all.rows
+        .map((row) => row.doc)
+        .filter((req) => req.from === email);
+      const received = all.rows
+        .map((row) => row.doc)
+        .filter((req) => req.to === email);
+      setSentRequests(sent);
+      setReceivedRequests(received);
+    } catch (error) {
+      console.error("Error fetching swap requests:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +98,13 @@ const Profile = () => {
       <div className="max-w-xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-3xl font-extrabold mb-6 text-center">My Profile</h2>
 
+        {/* Points Balance */}
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-semibold">Points Balance</h3>
+          <p className="text-2xl font-bold">{user.points || 0} points</p>
+        </div>
+
+        {/* Profile Image */}
         <div className="flex flex-col items-center mb-6">
           {profileImage ? (
             <img
@@ -95,6 +125,7 @@ const Profile = () => {
           />
         </div>
 
+        {/* Details */}
         <div className="space-y-4">
           {/* Full Name */}
           <div>
@@ -118,7 +149,22 @@ const Profile = () => {
             <p>{user.email}</p>
           </div>
 
-        
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            {editing ? (
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full border rounded p-2"
+              />
+            ) : (
+              <p>********</p>
+            )}
+          </div>
+
           {/* Bio */}
           <div>
             <label className="block text-sm font-medium mb-1">Bio</label>
@@ -191,6 +237,41 @@ const Profile = () => {
               Edit Profile
             </button>
           )}
+        </div>
+
+        {/* Swap History */}
+        <div className="mt-10">
+          <h3 className="text-xl font-semibold mb-4">Swap History</h3>
+
+          <div className="mb-6">
+            <h4 className="font-medium mb-2">Requests Sent</h4>
+            {sentRequests.length === 0 ? (
+              <p className="text-sm text-gray-600">No requests sent.</p>
+            ) : (
+              <ul className="list-disc pl-5">
+                {sentRequests.map((req) => (
+                  <li key={req._id}>
+                    To: {req.to} | Item ID: {req.itemId} | Status: {req.status}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">Requests Received</h4>
+            {receivedRequests.length === 0 ? (
+              <p className="text-sm text-gray-600">No requests received.</p>
+            ) : (
+              <ul className="list-disc pl-5">
+                {receivedRequests.map((req) => (
+                  <li key={req._id}>
+                    From: {req.from} | Item ID: {req.itemId} | Status: {req.status}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

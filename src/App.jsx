@@ -1,11 +1,13 @@
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
-import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import BrowseItems from "./pages/BrowseItemsPage";
+import ListItem from "./pages/ListItem";
+import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Profile from "./pages/profile"
-import BrowseItemsPage from './pages/BrowseItemsPage';
 
 
 function App() {
@@ -13,15 +15,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/browse-items" element={<BrowseItems />} />
+        <Route path="/list-item" element={<ListItem />} />  {/* ✅ Added ListItem route */}
+        <Route path="/profile" element={<Profile />} />     {/* ✅ Added Profile route */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-
-        <Route path="/profile" element={<Profile />} />
-
-        <Route path="/browse-items" element={<BrowseItemsPage />} />
-
       </Routes>
     </BrowserRouter>
   );

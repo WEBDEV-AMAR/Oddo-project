@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AuthLayout from "../components/AuthLayout";
 import forgotImage from "../assets/images/forgot.png";
-import db from "../db";
+import db from "../db/db";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();

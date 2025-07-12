@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AuthLayout from "../components/AuthLayout";
 import signupImage from "../assets/images/Signup.png";
-import db from "../db";
+import db from "../db/db";
 
 const Signup = () => {
   const navigate = useNavigate();

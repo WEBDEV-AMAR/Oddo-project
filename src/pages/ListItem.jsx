@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import db from "../db";
+import db from "../db/db";
 
 const ListItem = () => {
   const navigate = useNavigate();

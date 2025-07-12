@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import logo from '../assets/images/logo.jpg';  // path tumhari file location ke hisaab se adjust kar lena
-
+import logo from "../assets/images/logo.jpg"; // adjust path based on your folder structure
+import MainImage from "../assets/images/Main.jpg"; // adjust path based on your folder structure
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -37,20 +37,21 @@ const Landing = () => {
       {/* Navbar */}
       <nav className="flex justify-between items-center px-8 py-4 shadow bg-white">
         <img
-  src={logo}
-  alt="ReWear Logo"
-  className="h-30 w-20 rounded-full cursor-pointer"
-  onClick={() => navigate("/")}
-/>
+          src={logo}
+          alt="ReWear Logo"
+          className="h-20 w-20 rounded-full cursor-pointer"
+          onClick={() => navigate("/")}
+        />
 
         <div className="space-x-6 hidden md:flex">
-          <Link to="/browse-items" className="hover:underline text-xl ">
+          <Link to="/browse-items" className="hover:underline text-xl">
             Browse Items
           </Link>
           <button onClick={handleListItem} className="hover:underline text-xl">
             List an Item
           </button>
         </div>
+
         {user ? (
           <div className="flex items-center space-x-4">
             <span
@@ -78,12 +79,14 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center justify-center px-6 py-12 bg-gradient-to-r from-green-50 to-green-100">
-        <img
-          src="https://images.unsplash.com/photo-1602810313345-52d4a416bd29"
-          alt="Swap Clothes"
-          className="w-full md:w-1/2 rounded-lg object-cover mb-6 md:mb-0 shadow-lg"
-        />
-        <div className="md:ml-12 text-center md:text-left">
+        <div className="w-full md:w-3/4 max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+          <img
+            src={MainImage}
+            alt="Swap Event"
+            className="w-full h-auto object-contain"
+          />
+        </div>
+        <div className="md:ml-12 text-center md:text-left mt-6 md:mt-0">
           <h2 className="text-4xl font-bold mb-4 text-green-900">
             Swap, Redeem, ReWear
           </h2>
