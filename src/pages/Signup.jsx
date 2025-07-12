@@ -14,42 +14,98 @@ const Signup = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setError("");
+
     if (!agree) {
       setError("Please agree to terms and conditions.");
       return;
     }
 
+    const user = {
+      _id: email,
+      fullName,
+      email,
+      password, // ⚠️ Plaintext for learning; hash in production
+    };
+
     try {
-      const user = {
-        _id: email,
-        fullName,
-        email,
-        password // ⚠️ Plaintext for learning; hash in production
-      };
       await db.put(user);
-      navigate("/"); // ✅ navigate to Landing page after signup
-    } catch (error) {
-      console.error(error);
-      if (error.status === 409) setError("User already exists.");
+      localStorage.setItem("user", JSON.stringify(user)); // ✅ Save to localStorage
+      navigate("/"); // Navigate to Landing page
+    } catch (err) {
+      console.error(err);
+      if (err.status === 409) setError("User already exists.");
       else setError("Error registering user.");
     }
   };
 
   return (
-    <AuthLayout image={<img src={signupImage} alt="Signup" className="w-48 h-48 md:w-64 md:h-64 object-contain" />}>
+    <AuthLayout
+      image={
+        <img
+          src={signupImage}
+          alt="Signup"
+          className="w-48 h-48 md:w-64 md:h-64 object-contain"
+        />
+      }
+    >
       <h2 className="text-2xl font-semibold mb-1">Signup Panel</h2>
-      <p className="text-sm text-gray-600 mb-6">Swap. Style. Influence. Join the movement toward sustainable fashion.</p>
+      <p className="text-sm text-gray-600 mb-6">
+        Swap. Style. Influence. Join the movement toward sustainable fashion.
+      </p>
+
       <form onSubmit={handleSignup}>
-        <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full p-2 mb-4 border rounded" required />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 mb-4 border rounded" required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 mb-4 border rounded" required />
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+
         <label className="text-sm flex items-center mb-4">
-          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mr-2" /> I have read and agree to the terms and conditions
+          <input
+            type="checkbox"
+            checked={agree}
+            onChange={(e) => setAgree(e.target.checked)}
+            className="mr-2"
+          />
+          I have read and agree to the terms and conditions
         </label>
+
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-        <button type="submit" className="w-full bg-blue-800 text-white py-2 rounded-full mb-4">Sign Up</button>
+
+        <button
+          type="submit"
+          className="w-full bg-green-800 text-white py-2 rounded-full mb-4"
+        >
+          Sign Up
+        </button>
       </form>
-      <p className="text-sm text-center">Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login</Link></p>
+
+      <p className="text-sm text-center">
+        Already have an account?{" "}
+        <Link to="/login" className="text-blue-500 hover:underline">
+          Login
+        </Link>
+      </p>
     </AuthLayout>
   );
 };

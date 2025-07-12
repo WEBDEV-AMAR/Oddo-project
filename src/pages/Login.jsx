@@ -12,18 +12,19 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       const user = await db.get(email);
       if (user.password === password) {
-        console.log("Logged in user:", user);
-        navigate("/"); // ✅ navigate to Landing page after login
+        localStorage.setItem("user", JSON.stringify(user)); // ✅ Save user to localStorage
+        navigate("/"); // Navigate to Landing page
       } else {
         setError("Incorrect password.");
       }
-    } catch (error) {
-      console.error(error);
-      if (error.status === 404) setError("User not found.");
+    } catch (err) {
+      console.error(err);
+      if (err.status === 404) setError("User not found.");
       else setError("Error logging in.");
     }
   };
@@ -42,6 +43,7 @@ const Login = () => {
       <p className="text-sm text-gray-600 mb-6">
         Swap. Style. Influence. Join the movement toward sustainable fashion.
       </p>
+
       <form onSubmit={handleLogin}>
         <input
           type="email"
@@ -59,20 +61,24 @@ const Login = () => {
           className="w-full p-2 mb-4 border rounded"
           required
         />
+
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
         <div className="flex justify-between text-sm mb-4">
           <span></span>
           <Link to="/forgot-password" className="text-blue-500 hover:underline">
             Forgot Password?
           </Link>
         </div>
+
         <button
           type="submit"
-          className="w-full bg-blue-800 text-white py-2 rounded-full mb-4"
+          className="w-full bg-green-800 text-white py-2 rounded-full mb-4"
         >
           Log In
         </button>
       </form>
+
       <p className="text-sm text-center">
         Don’t have an account?{" "}
         <Link to="/signup" className="text-blue-500 hover:underline">
