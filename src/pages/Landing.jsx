@@ -1,7 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import logo from "../assets/images/logo.jpg"; // adjust path based on your folder structure
-import MainImage from "../assets/images/Main.jpg"; // adjust path based on your folder structure
+import logo from "../assets/images/logo.jpg";
+import MainImage from "../assets/images/Main.jpg";
+import MenImage from "../assets/images/men.jpg";
+import WomenImage from "../assets/images/female.jpg";
+import KidImage from "../assets/images/kid.jpg";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -110,45 +113,33 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Featured Items */}
-      <section className="px-6 py-12">
-        <h3 className="text-2xl font-bold mb-8 text-center text-green-800">
-          Featured Items
+      
+    
+
+      {/* Categories Section */}
+      <section className="px-6 py-12 bg-green-50">
+        <h3 className="text-2xl font-bold mb-10 text-center text-green-800">
+          Shop by Category
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
-            {
-              src: "https://images.unsplash.com/photo-1618354691328-5e60b81b3d2e",
-              name: "Beige crew sweater",
-              points: 300,
-            },
-            {
-              src: "https://images.unsplash.com/photo-1580316017863-3e6e25a6b8b3",
-              name: "Bus denim jeans",
-              points: 250,
-            },
-            {
-              src: "https://images.unsplash.com/photo-1618354691748-29d19a393d4e",
-              name: "Swap Dress",
-              points: "Swap only",
-            },
-            {
-              src: "https://images.unsplash.com/photo-1542068829-1115f7259450",
-              name: "Corduroy jacket",
-              points: 350,
-            },
-          ].map((item, index) => (
+            { name: "Men", image: MenImage, className: "" },
+            { name: "Women", image: WomenImage, className: "mt-[-20px]" },
+            { name: "Kids", image: KidImage, className: "mt-[-20px]" },
+          ].map((category, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow hover:shadow-md transition p-4 text-center"
+              className={`bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 cursor-pointer ${category.className}`}
+              onClick={() => navigate(`/category/${category.name.toLowerCase()}`)}
             >
               <img
-                src={item.src}
-                alt={item.name}
-                className="w-full h-40 object-cover rounded mb-2"
+                src={category.image}
+                alt={category.name}
+                className="w-full h-60 object-cover rounded mb-4"
               />
-              <p className="font-medium">{item.name}</p>
-              <p className="text-gray-600 text-sm">{item.points} points</p>
+              <h4 className="text-xl font-semibold text-green-900">
+                {category.name}
+              </h4>
             </div>
           ))}
         </div>
@@ -193,3 +184,5 @@ const Landing = () => {
 };
 
 export default Landing;
+
+
